@@ -1,0 +1,42 @@
+clc;clear all;close all;
+load coef_PID_discreto.lvm
+load coef_planta_discreto.lvm
+T=0.00001;
+t=0:T:0.3;
+u=1000*ones(length(t),1);
+%simulación discreta
+% a z^3 + b z^2 + c z + d
+%-------------------------------------------------------=c/e
+%m z^3 + n z^2 +o z +p
+% a1 z + a2
+%-------------------=y/c
+%b1z^2 +b2 z + b3
+a=coef_PID_discreto(1,1);
+b=coef_PID_discreto(1,2);
+ce=coef_PID_discreto(1,3);
+d=coef_PID_discreto(1,4);
+m=coef_PID_discreto(1,5);
+n=coef_PID_discreto(1,6);
+o=coef_PID_discreto(1,7);
+p=coef_PID_discreto(1,8);
+%coeficientes de la pnata de 2do orden:
+a1=coef_planta_discreto(1,2);
+a2=coef_planta_discreto(1,3);
+b1=coef_planta_discreto(1,4);
+b2=coef_planta_discreto(1,5);
+b3=coef_planta_discreto(1,6);
+yd(1)=0;yd(2)=0;yd(3)=0;
+e(1)=0;
+e(2)=u(2)-yd(1);
+e(3)=u(3)-yd(2);
+c(1)=0;c(2)=0;c(3)=0;
+
+for i=4:length(t)
+    e(i)=u(i)-yd(i-1);
+    c(i)=(a*e(i)+ b*e(i-1) +ce*e(i-2) + d*e(i-3)-...
+    (n*c(i-1) +o*c(i-2) +p*c(i-3)))/m;
+yd(i)=(a1*c(i-1) + a2*c(i)-(b2*yd(i-1)+b3*yd(i-2)))/b1;
+end
+stairs(t,yd,'m')
+grid
+
